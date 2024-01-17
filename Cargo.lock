@@ -147,7 +147,7 @@ checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 
 [[package]]
 name = "css-in-rs"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "css-in-rs-macro",
  "dioxus",
@@ -160,7 +160,7 @@ dependencies = [
 
 [[package]]
 name = "css-in-rs-demo"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "css-in-rs",
  "dioxus",
@@ -172,7 +172,7 @@ dependencies = [
 
 [[package]]
 name = "css-in-rs-macro"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "css-in-rs",
  "nom",
