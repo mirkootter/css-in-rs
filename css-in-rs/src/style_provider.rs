@@ -1,9 +1,10 @@
 use core::cell::RefCell;
 use std::{collections::btree_map::Entry, rc::Rc};
 
+use dioxus::core::ScopeState;
 use wasm_bindgen::JsCast;
 
-use crate::Theme;
+use crate::{Classes, Theme};
 
 #[derive(Clone)]
 pub struct StyleProvider<T> {
@@ -18,12 +19,27 @@ impl<T: Theme> StyleProvider<T> {
         StyleProvider { inner }
     }
 
-    pub fn add_updater(&self, updater: fn(&T, &mut String, &mut u64)) -> u64 {
+    fn add_updater(&self, updater: fn(&T, &mut String, &mut u64)) -> u64 {
         self.inner.borrow_mut().add_updater(updater)
+    }
+
+    pub fn add_classes<C>(&self) -> C
+    where
+        C: Classes<Theme = T>,
+    {
+        let start = self.add_updater(C::generate);
+        C::new(start)
     }
 
     pub fn update_theme(&self, theme: T) {
         self.inner.borrow_mut().update_theme(theme);
+    }
+
+    pub fn use_styles<'a, C>(&self, cx: &'a ScopeState) -> &'a C
+    where
+        C: Classes<Theme = T>,
+    {
+        cx.use_hook(|| self.add_classes())
     }
 }
 

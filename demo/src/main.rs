@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use css_in_rs::{use_style_provider, use_style_provider_root, EmptyTheme};
+use css_in_rs::{use_style_provider_root, Classes, EmptyTheme};
 use dioxus::prelude::*;
 
 fn main() {
@@ -15,44 +15,57 @@ fn use_main_element(cx: &ScopeState) -> &web_sys::Element {
     })
 }
 
+struct RedClass(String);
+struct BlueClass(String);
+
+impl Classes for RedClass {
+    type Theme = EmptyTheme;
+
+    fn generate(_theme: &Self::Theme, css: &mut String, counter: &mut u64) {
+        use core::fmt::Write;
+        writeln!(css, ".css-{counter} {{ color: red; }}").unwrap();
+        *counter += 1;
+    }
+
+    fn new(start: u64) -> Self {
+        Self(format!("css-{start}"))
+    }
+}
+
+impl Classes for BlueClass {
+    type Theme = EmptyTheme;
+
+    fn generate(_theme: &Self::Theme, css: &mut String, counter: &mut u64) {
+        use core::fmt::Write;
+        writeln!(css, ".css-{counter} {{ color: blue; }}").unwrap();
+        *counter += 1;
+    }
+
+    fn new(start: u64) -> Self {
+        Self(format!("css-{start}"))
+    }
+}
+
 fn RedText(cx: Scope) -> Element {
-    let provider = use_style_provider::<EmptyTheme>(cx);
-    let classname = cx.use_hook(|| {
-        let start = provider.add_updater(|_, css, counter| {
-            use core::fmt::Write;
-            writeln!(css, ".css-{counter} {{ color: red; }}").unwrap();
-            *counter += 1;
-        });
+    let classname = &RedClass::use_style(cx).0 as &str;
 
-        format!("css-{start}")
-    }) as &str;
-
-    render!(
+    cx.render(rsx! {
         div {
             class: classname,
             "This text is supposed to be red!",
         }
-    )
+    })
 }
 
 fn BlueText(cx: Scope) -> Element {
-    let provider = use_style_provider::<EmptyTheme>(cx);
-    let classname = cx.use_hook(|| {
-        let start = provider.add_updater(|_, css, counter| {
-            use core::fmt::Write;
-            writeln!(css, ".css-{counter} {{ color: blue; }}").unwrap();
-            *counter += 1;
-        });
+    let classname = &BlueClass::use_style(cx).0 as &str;
 
-        format!("css-{start}")
-    }) as &str;
-
-    render!(
+    cx.render(rsx! {
         div {
             class: classname,
             "This text is supposed to be blue!",
         }
-    )
+    })
 }
 
 fn App(cx: Scope) -> Element {

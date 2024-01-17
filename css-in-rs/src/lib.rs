@@ -17,6 +17,17 @@ impl Theme for EmptyTheme {
     }
 }
 
+pub trait Classes: Sized + 'static {
+    type Theme: Theme;
+    fn generate(theme: &Self::Theme, css: &mut String, counter: &mut u64);
+    fn new(start: u64) -> Self;
+
+    fn use_style(cx: &ScopeState) -> &Self {
+        let provider = use_style_provider(cx);
+        provider.use_styles(cx)
+    }
+}
+
 pub fn use_style_provider_root<'a, T: Theme>(
     cx: &'a ScopeState,
     some_elem: &web_sys::Element,
