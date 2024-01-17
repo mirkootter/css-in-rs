@@ -16,6 +16,14 @@ fn use_main_element(cx: &ScopeState) -> &web_sys::Element {
 }
 
 make_styles! {
+    (_theme: EmptyTheme) -> SharedClasses {
+        left_margin {
+            margin_left: "16px",
+        },
+    }
+}
+
+make_styles! {
     (_theme: EmptyTheme) -> RedClass {
         "div.text" {
             color: "red",
@@ -32,22 +40,24 @@ make_styles! {
 }
 
 fn RedText(cx: Scope) -> Element {
-    let classname = &RedClass::use_style(cx).text as &str;
+    let class1 = &SharedClasses::use_style(cx).left_margin;
+    let class2 = &RedClass::use_style(cx).text;
 
     cx.render(rsx! {
         div {
-            class: classname,
+            class: "{class1} {class2}",
             "This text is supposed to be red!",
         }
     })
 }
 
 fn BlueText(cx: Scope) -> Element {
-    let classname = &BlueClass::use_style(cx).text as &str;
+    let class1 = &SharedClasses::use_style(cx).left_margin;
+    let class2 = &BlueClass::use_style(cx).text;
 
     cx.render(rsx! {
         div {
-            class: classname,
+            class: "{class1} {class2}",
             "This text is supposed to be blue!",
         }
     })

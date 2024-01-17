@@ -87,7 +87,10 @@ impl Parse for Style {
 mod tests {
     use quote::quote;
 
-    use crate::data::selector::{Part, Selector};
+    use crate::data::{
+        selector::{Part, Selector},
+        Rule,
+    };
 
     use super::Style;
 
@@ -101,7 +104,10 @@ mod tests {
                 "div.blue_text" {
                     color: "blue",
                 },
-                ident {},
+                my_class {
+                    background_color: "#ababab",
+                    "12%": false,
+                },
             }
         };
 
@@ -128,6 +134,7 @@ mod tests {
 
         let style = syn::parse2::<Style>(input).unwrap();
         let rules = style.rules.rules;
+        let rules: Vec<&Rule> = rules.iter().collect();
         let selectors: Vec<&Selector> = rules.iter().map(|r| &r.selector).collect();
 
         assert_eq!(selectors.len(), 3);
@@ -136,6 +143,20 @@ mod tests {
             selector_to_str(selectors[1]),
             "raw'div'classname'blue_text'"
         );
-        assert_eq!(selector_to_str(selectors[2]), "classname'ident'");
+        assert_eq!(selector_to_str(selectors[2]), "classname'my_class'");
+
+        // Third rule
+        {
+            let rule = rules[2];
+            assert_eq!(rule.entries.len(), 2);
+
+            let mut entries = rule.entries.iter();
+
+            let entry = entries.next().unwrap();
+            assert_eq!(entry.property, "background-color");
+
+            let entry = entries.next().unwrap();
+            assert_eq!(entry.property, "12%");
+        }
     }
 }
