@@ -7,6 +7,7 @@ license = "MIT"
 description = "Library to manage component-level CSS in Rust"
 repository = "https://github.com/mirkootter/css-in-rs"
 keywords = ["css", "dioxus", "jss", "wasm", "gui"]
+readme = "../README.md"
 
 [dependencies]
 css-in-rs-macro = { version = "0.1.0", path = "../css-in-rs-macro" }

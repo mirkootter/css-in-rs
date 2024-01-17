@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use css_in_rs::{use_style_provider_root, Classes, EmptyTheme};
+use css_in_rs::{make_styles, use_style_provider_root, Classes, EmptyTheme};
 use dioxus::prelude::*;
 
 fn main() {
@@ -15,39 +15,24 @@ fn use_main_element(cx: &ScopeState) -> &web_sys::Element {
     })
 }
 
-struct RedClass(String);
-struct BlueClass(String);
-
-impl Classes for RedClass {
-    type Theme = EmptyTheme;
-
-    fn generate(_theme: &Self::Theme, css: &mut String, counter: &mut u64) {
-        use core::fmt::Write;
-        writeln!(css, ".css-{counter} {{ color: red; }}").unwrap();
-        *counter += 1;
-    }
-
-    fn new(start: u64) -> Self {
-        Self(format!("css-{start}"))
+make_styles! {
+    (_theme: EmptyTheme) -> RedClass {
+        "div.text" {
+            color: "red",
+        },
     }
 }
 
-impl Classes for BlueClass {
-    type Theme = EmptyTheme;
-
-    fn generate(_theme: &Self::Theme, css: &mut String, counter: &mut u64) {
-        use core::fmt::Write;
-        writeln!(css, ".css-{counter} {{ color: blue; }}").unwrap();
-        *counter += 1;
-    }
-
-    fn new(start: u64) -> Self {
-        Self(format!("css-{start}"))
+make_styles! {
+    (_theme: EmptyTheme) -> BlueClass {
+        "div.text" {
+            color: "blue",
+        },
     }
 }
 
 fn RedText(cx: Scope) -> Element {
-    let classname = &RedClass::use_style(cx).0 as &str;
+    let classname = &RedClass::use_style(cx).text as &str;
 
     cx.render(rsx! {
         div {
@@ -58,7 +43,7 @@ fn RedText(cx: Scope) -> Element {
 }
 
 fn BlueText(cx: Scope) -> Element {
-    let classname = &BlueClass::use_style(cx).0 as &str;
+    let classname = &BlueClass::use_style(cx).text as &str;
 
     cx.render(rsx! {
         div {
