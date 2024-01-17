@@ -4,10 +4,13 @@ use syn::{
     Token,
 };
 
+pub mod entry;
 pub mod selector;
+pub mod signature;
 
 pub struct Rule {
     pub selector: selector::Selector,
+    pub entries: Punctuated<entry::Entry, syn::token::Comma>,
 }
 
 pub struct RuleList {
@@ -15,6 +18,7 @@ pub struct RuleList {
 }
 
 pub struct Style {
+    pub signature: signature::Signature,
     pub rules: RuleList,
 }
 
@@ -22,10 +26,12 @@ impl Parse for Rule {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let selector = input.parse::<selector::Selector>()?;
 
-        let _content;
-        syn::braced!(_content in input);
+        let content;
+        syn::braced!(content in input);
 
-        let rule = Rule { selector };
+        let entries = content.parse_terminated(entry::Entry::parse, Token![,])?;
+
+        let rule = Rule { selector, entries };
 
         Ok(rule)
     }
@@ -40,9 +46,13 @@ impl Parse for RuleList {
 
 impl Parse for Style {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let rules = input.parse::<RuleList>()?;
+        let signature = input.parse::<signature::Signature>()?;
 
-        let style = Style { rules };
+        let content;
+        syn::braced!(content in input);
+        let rules = content.parse::<RuleList>()?;
+
+        let style = Style { signature, rules };
         Ok(style)
     }
 }
@@ -58,9 +68,15 @@ mod tests {
     #[test]
     fn simple() {
         let input = quote! {
-            "div.red_text" {},
-            "div.blue_text" {},
-            ident {},
+            (_theme: MyTheme) -> MyClasses {
+                "div.red_text" {
+                    color: "red",
+                },
+                "div.blue_text" {
+                    color: "blue",
+                },
+                ident {},
+            }
         };
 
         let selector_to_str = |sel: &Selector| {
