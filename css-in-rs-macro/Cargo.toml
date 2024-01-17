@@ -1,6 +1,6 @@
 [package]
 name = "css-in-rs-macro"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 authors = ["Jan-Mirko Otter"]
@@ -17,4 +17,4 @@ quote = "1.0.35"
 syn = "2.0.48"
 
 [dev-dependencies]
-css-in-rs = { version = "0.1.0", path = "../css-in-rs" }
+css-in-rs = { version = "=0.1.0" }

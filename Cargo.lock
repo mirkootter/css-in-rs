@@ -148,8 +148,22 @@ checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 [[package]]
 name = "css-in-rs"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09e2c2cdeaed05f0fa2f0bbf0cc3f3dd0cddeb43507f8ac8b3b756bbc36fa98b"
 dependencies = [
- "css-in-rs-macro",
+ "css-in-rs-macro 0.1.0",
+ "dioxus",
+ "gloo-console",
+ "js-sys",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "css-in-rs"
+version = "0.1.1"
+dependencies = [
+ "css-in-rs-macro 0.1.1",
  "dioxus",
  "dioxus-web",
  "gloo-console",
@@ -160,9 +174,9 @@ dependencies = [
 
 [[package]]
 name = "css-in-rs-demo"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
- "css-in-rs",
+ "css-in-rs 0.1.1",
  "dioxus",
  "dioxus-web",
  "gloo-console",
@@ -173,8 +187,20 @@ dependencies = [
 [[package]]
 name = "css-in-rs-macro"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff90f80393af63f02c2c22648c03980475450a78aeb7822bf1cd9d1dc9c48485"
 dependencies = [
- "css-in-rs",
+ "nom",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "css-in-rs-macro"
+version = "0.1.1"
+dependencies = [
+ "css-in-rs 0.1.0",
  "nom",
  "proc-macro2",
  "quote",
