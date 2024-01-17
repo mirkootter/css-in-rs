@@ -58,26 +58,42 @@ mod tests {
     #[test]
     fn simple() {
         let input = quote! {
-            red_text {},
-            blue_text {},
+            "div.red_text" {},
+            "div.blue_text" {},
+            ident {},
         };
 
         let selector_to_str = |sel: &Selector| {
+            use core::fmt::Write;
+            let mut result = String::new();
+
             let parts = &sel.parts;
-            assert_eq!(parts.len(), 1);
-            let part = parts.first().unwrap();
-            match part {
-                Part::Raw(_) => unreachable!(),
-                Part::ClassName(s) => s.clone(),
+
+            for part in parts {
+                match part {
+                    Part::Raw(s) => {
+                        write!(result, "raw'{}'", s)
+                    }
+                    Part::ClassName(s) => {
+                        write!(result, "classname'{}'", s)
+                    }
+                }
+                .unwrap();
             }
+
+            result
         };
 
         let style = syn::parse2::<Style>(input).unwrap();
         let rules = style.rules.rules;
         let selectors: Vec<&Selector> = rules.iter().map(|r| &r.selector).collect();
 
-        assert_eq!(selectors.len(), 2);
-        assert_eq!(selector_to_str(selectors[0]), "red_text");
-        assert_eq!(selector_to_str(selectors[1]), "blue_text");
+        assert_eq!(selectors.len(), 3);
+        assert_eq!(selector_to_str(selectors[0]), "raw'div'classname'red_text'");
+        assert_eq!(
+            selector_to_str(selectors[1]),
+            "raw'div'classname'blue_text'"
+        );
+        assert_eq!(selector_to_str(selectors[2]), "classname'ident'");
     }
 }
