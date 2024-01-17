@@ -149,6 +149,7 @@ checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 name = "css-in-rs"
 version = "0.1.0"
 dependencies = [
+ "css-in-rs-macro",
  "dioxus",
  "gloo-console",
  "js-sys",
@@ -166,6 +167,15 @@ dependencies = [
  "gloo-console",
  "js-sys",
  "web-sys",
+]
+
+[[package]]
+name = "css-in-rs-macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

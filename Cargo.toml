@@ -3,4 +3,5 @@ resolver = "2"
 members = [
     "demo",
     "css-in-rs",
+    "css-in-rs-macro",
 ]

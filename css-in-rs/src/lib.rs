@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 mod style_provider;
 
+pub use css_in_rs_macro::make_styles;
 pub use style_provider::StyleProvider;
 
 pub trait Theme: Clone + 'static {
