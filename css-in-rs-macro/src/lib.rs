@@ -6,6 +6,55 @@ use quote::quote;
 mod data;
 mod output;
 
+/// Introduces dynamic CSS code which can be injected.
+///
+/// # Example
+/// ```
+/// # use css_in_rs_macro::make_styles;
+/// #[derive(Clone)]
+/// struct MyTheme {
+///     pub primary_color: String,
+///     pub header_color: String,
+/// }
+/// impl css_in_rs::Theme for MyTheme {
+///     /* ... */
+///     # fn fast_cmp(&self, other: &MyTheme) -> bool { false }
+/// }
+///
+/// make_styles! {
+///     (theme: MyTheme) -> MyClasses {
+///         "*" {
+///             padding: "0px",
+///         },
+///         text {
+///             margin: "10px",
+///             color: theme.primary_color,
+///         },
+///         header {
+///             margin: "20px",
+///             color: theme.header_color,
+///         },
+///     }
+/// }
+/// ```
+/// This essentially expands to
+/// ```
+/// // Generated code; expanded form of the macro above
+/// struct MyClasses {
+///     pub text: String,
+///     pub header: String,
+/// }
+///
+/// impl ::css_in_rs::Classes for MyClasses {
+///     # type Theme = css_in_rs::EmptyTheme;
+///     # fn generate(_a: &css_in_rs::EmptyTheme, _b: &mut String, _c: &mut u64) {}
+///     # fn new(_: u64) -> Self { todo!() }
+///     /* ... */
+/// }
+/// ```
+/// You can inject this style into the DOM using a `StyleProvider` (see
+/// css-in-js crate). It will hand you a `MyClasses` instance with uniquely
+/// generated classnames (usually something like `css-17`).
 #[proc_macro]
 pub fn make_styles(input: TokenStream) -> TokenStream {
     let style = syn::parse_macro_input!(input as data::Style);

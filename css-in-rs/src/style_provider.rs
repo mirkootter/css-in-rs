@@ -6,6 +6,36 @@ use wasm_bindgen::JsCast;
 
 use crate::{Classes, Theme};
 
+/// Manages dynamically inserted styles. You should usually have exactly one.
+/// Generated classnames are only unique for a fixed [StyleProvider].
+///
+/// You will typically use [StyleProvider] in comination with the [`crate::make_styles!`]
+/// macro.
+///
+/// # Example
+/// ```no_run
+/// # use css_in_rs::{make_styles, EmptyTheme, StyleProvider};
+/// make_styles! {
+///     (_theme: EmptyTheme) -> MyClasses {
+///         ".my_class > span" {
+///             color: "red",
+///         },
+///     }
+/// }
+///
+/// fn main() {
+///     let elem: &web_sys::Element = todo!(); // Some element
+///     let style_provider = StyleProvider::new_and_mount(elem, EmptyTheme);
+///     
+///     // inject the css styles
+///     let cls = style_provider.add_classes::<MyClasses>();
+///     elem.set_class_name(&cls.my_class);
+///     
+///     // inject it again; no change; will return the same classes
+///     let cls2 = style_provider.add_classes::<MyClasses>();
+///     assert_eq!(cls.my_class, cls2.my_class);
+/// }
+/// ```
 #[derive(Clone)]
 pub struct StyleProvider<T> {
     inner: Rc<RefCell<Inner<T>>>,
