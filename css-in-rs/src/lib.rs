@@ -1,7 +1,7 @@
 //! A library for embedding dynamic CSS in Rust (wasm); inspired by [cssinjs/JSS](https://cssinjs.org/)
 //!
-//! This crate is designed to be framework-independent; however, this requires a
-//! little more work. For now, it only works with [Dioxus](https://dioxuslabs.com/)
+//! This crate is designed to be framework-independent.
+//! It currently provides integrations for [Dioxus](https://dioxuslabs.com/), which is disabled by default.
 //!
 //! ## Use case
 //! This crate allows to develop reusable components for the web which bundle their own
@@ -18,6 +18,7 @@
 //!
 //! #### Example (Dioxus):
 //! ```no_run
+//! # #[cfg(feature = "dioxus")] {
 //! #![allow(non_snake_case)]
 //!
 //! use css_in_rs::{Classes, EmptyTheme, make_styles, use_style_provider_root};
@@ -73,8 +74,10 @@
 //!     // launch the web app
 //!     dioxus_web::launch(App);
 //! }
+//! # }
 //! ```
 
+#[cfg(feature = "dioxus")]
 use dioxus::prelude::*;
 
 mod style_provider;
@@ -100,12 +103,14 @@ pub trait Classes: Sized + 'static {
     fn generate(theme: &Self::Theme, css: &mut String, counter: &mut u64);
     fn new(start: u64) -> Self;
 
+    #[cfg(feature = "dioxus")]
     fn use_style(cx: &ScopeState) -> &Self {
         let provider = use_style_provider(cx);
         provider.use_styles(cx)
     }
 }
 
+#[cfg(feature = "dioxus")]
 pub fn use_style_provider_root<'a, T: Theme>(
     cx: &'a ScopeState,
     some_elem: &web_sys::Element,
@@ -115,6 +120,7 @@ pub fn use_style_provider_root<'a, T: Theme>(
     use_context_provider(cx, || provider.clone())
 }
 
+#[cfg(feature = "dioxus")]
 pub fn use_style_provider<T: Theme>(cx: &ScopeState) -> &StyleProvider<T> {
     use_context(cx).unwrap()
 }

@@ -1,7 +1,9 @@
 use core::cell::RefCell;
 use std::{collections::btree_map::Entry, rc::Rc};
 
+#[cfg(feature = "dioxus")]
 use dioxus::core::ScopeState;
+
 use wasm_bindgen::JsCast;
 
 use crate::{Classes, Theme};
@@ -65,6 +67,7 @@ impl<T: Theme> StyleProvider<T> {
         self.inner.borrow_mut().update_theme(theme);
     }
 
+    #[cfg(feature = "dioxus")]
     pub fn use_styles<'a, C>(&self, cx: &'a ScopeState) -> &'a C
     where
         C: Classes<Theme = T>,

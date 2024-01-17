@@ -1,8 +1,8 @@
 # css-in-rs
 A library for embedding dynamic CSS in Rust (wasm); inspired by [cssinjs/JSS](https://cssinjs.org/)
 
-This crate is designed to be framework-independent; however, this requires a
-little more work. For now, it only works with [Dioxus](https://dioxuslabs.com/)
+This crate is designed to be framework-independent.
+It currently provides integrations for [Dioxus](https://dioxuslabs.com/), which is disabled by default.
 
 ## Use case
 This crate allows to develop reusable components for the web which bundle their own
