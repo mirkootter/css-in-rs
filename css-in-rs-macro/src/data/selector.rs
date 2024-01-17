@@ -1,3 +1,5 @@
+use std::collections::{btree_map::Entry, BTreeMap};
+
 use proc_macro2::Span;
 use syn::parse::{Parse, ParseStream};
 
@@ -11,6 +13,25 @@ pub enum Part {
 pub struct Selector {
     pub parts: Vec<Part>,
     pub span: Span,
+}
+
+impl Selector {
+    pub fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
+        for part in &self.parts {
+            match part {
+                Part::Raw(_) => {}
+                Part::ClassName(classname) => {
+                    let classname = classname.to_string();
+                    match result.entry(classname) {
+                        Entry::Vacant(vac) => {
+                            vac.insert(self.span.clone());
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
 }
 
 mod parse {

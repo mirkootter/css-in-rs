@@ -1,3 +1,6 @@
+use std::collections::BTreeMap;
+
+use proc_macro2::Span;
 use syn::{
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
@@ -17,9 +20,32 @@ pub struct RuleList {
     pub rules: Punctuated<Rule, syn::token::Comma>,
 }
 
+impl RuleList {
+    pub fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
+        for rule in &self.rules {
+            rule.selector.collect_classnames(result);
+        }
+    }
+}
 pub struct Style {
     pub signature: signature::Signature,
     pub rules: RuleList,
+}
+
+impl Style {
+    pub fn get_classnames(&self) -> Vec<syn::Ident> {
+        let mut classnames = Default::default();
+        self.rules.collect_classnames(&mut classnames);
+
+        let mut result = Vec::new();
+        result.reserve_exact(classnames.len());
+        for (classname, span) in classnames {
+            let ident = syn::Ident::new(&classname, span);
+            result.push(ident);
+        }
+
+        result
+    }
 }
 
 impl Parse for Rule {
