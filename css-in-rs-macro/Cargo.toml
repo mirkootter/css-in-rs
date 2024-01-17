@@ -17,4 +17,4 @@ quote = "1.0.35"
 syn = "2.0.48"
 
 [dev-dependencies]
-css-in-rs = { version = "=0.1.0" }
+css-in-rs = { path = "../css-in-rs", features = ["dioxus"] }
