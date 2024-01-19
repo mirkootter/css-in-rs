@@ -41,7 +41,10 @@ impl Parse for Style {
 mod tests {
     use quote::quote;
 
-    use crate::data::rules::{header::Part, selector::Selector, Rule};
+    use crate::data::rules::{
+        header::{Header, Part},
+        Rule,
+    };
 
     use super::Style;
 
@@ -62,11 +65,11 @@ mod tests {
             }
         };
 
-        let selector_to_str = |sel: &Selector| {
+        let header_to_str = |header: &Header| {
             use core::fmt::Write;
             let mut result = String::new();
 
-            let parts = &sel.header.parts;
+            let parts = &header.parts;
 
             for part in parts {
                 match part {
@@ -86,15 +89,12 @@ mod tests {
         let style = syn::parse2::<Style>(input).unwrap();
         let rules = style.rules.rules;
         let rules: Vec<&Rule> = rules.iter().collect();
-        let selectors: Vec<&Selector> = rules.iter().map(|r| &r.selector).collect();
+        let headers: Vec<&Header> = rules.iter().map(|r| &r.header).collect();
 
-        assert_eq!(selectors.len(), 3);
-        assert_eq!(selector_to_str(selectors[0]), "raw'div'classname'red_text'");
-        assert_eq!(
-            selector_to_str(selectors[1]),
-            "raw'div'classname'blue_text'"
-        );
-        assert_eq!(selector_to_str(selectors[2]), "classname'my_class'");
+        assert_eq!(headers.len(), 3);
+        assert_eq!(header_to_str(headers[0]), "raw'div'classname'red_text'");
+        assert_eq!(header_to_str(headers[1]), "raw'div'classname'blue_text'");
+        assert_eq!(header_to_str(headers[2]), "classname'my_class'");
 
         // Third rule
         {

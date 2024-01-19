@@ -11,10 +11,9 @@ use crate::output::{Output, ToOutput};
 
 pub mod entry;
 pub mod header;
-pub mod selector;
 
 pub struct Rule {
-    pub selector: selector::Selector,
+    pub header: header::Header,
     pub entries: Punctuated<entry::Entry, syn::token::Comma>,
 }
 
@@ -25,21 +24,21 @@ pub struct RuleList {
 impl RuleList {
     pub fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
         for rule in &self.rules {
-            rule.selector.collect_classnames(result);
+            rule.header.collect_classnames(result);
         }
     }
 }
 
 impl Parse for Rule {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let selector = input.parse::<selector::Selector>()?;
+        let header = input.parse::<header::Header>()?;
 
         let content;
         syn::braced!(content in input);
 
         let entries = content.parse_terminated(entry::Entry::parse, Token![,])?;
 
-        let rule = Rule { selector, entries };
+        let rule = Rule { header, entries };
 
         Ok(rule)
     }
@@ -54,7 +53,7 @@ impl Parse for RuleList {
 
 impl ToOutput for Rule {
     fn append(&self, result: &mut Output) {
-        self.selector.append(result);
+        self.header.append(result);
         result.format_str.push_str(" {{\n");
         for entry in &self.entries {
             entry.append(result);
