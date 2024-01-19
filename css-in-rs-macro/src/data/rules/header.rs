@@ -11,6 +11,12 @@ pub enum Part {
     ClassName(String),
 }
 
+impl Part {
+    fn is_class(&self) -> bool {
+        matches!(self, Part::ClassName(_))
+    }
+}
+
 #[derive(Debug)]
 pub struct Header {
     pub parts: Vec<Part>,
@@ -34,6 +40,15 @@ impl Header {
             }
         }
     }
+
+    pub fn push_char(&mut self, ch: char) {
+        if let Some(Part::Raw(r)) = self.parts.last_mut() {
+            r.push(ch);
+        } else {
+            let part = Part::Raw(ch.to_string());
+            self.parts.push(part);
+        }
+    }
 }
 
 mod parse {
@@ -46,10 +61,17 @@ mod parse {
     pub fn parse(src: &str, span: Span) -> Option<Header> {
         let mut src = src.trim();
 
-        let mut parts = Vec::new();
+        let mut header = Header {
+            parts: Default::default(),
+            span,
+        };
+
         loop {
             let (remaining, part) = parse_part(src).ok()?;
-            parts.push(part);
+            if part.is_class() {
+                header.push_char('.');
+            }
+            header.parts.push(part);
 
             src = remaining;
             if src.is_empty() {
@@ -57,7 +79,6 @@ mod parse {
             }
         }
 
-        let header = Header { parts, span };
         Some(header)
     }
 
@@ -93,12 +114,12 @@ mod parse {
 impl Parse for Header {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let header = if let Ok(ident) = input.parse::<syn::Ident>() {
-            let part = Part::ClassName(ident.to_string());
+            let parts = vec![
+                Part::Raw(".".to_owned()),
+                Part::ClassName(ident.to_string()),
+            ];
             let span = ident.span();
-            Header {
-                parts: vec![part],
-                span,
-            }
+            Header { parts, span }
         } else {
             let source = input.parse::<syn::LitStr>()?;
 
@@ -120,10 +141,7 @@ impl ToOutput for Part {
     fn append(&self, result: &mut Output) {
         match self {
             Part::Raw(s) => result.push_str(s),
-            Part::ClassName(s) => {
-                result.push_str(".");
-                result.push_classname(s);
-            }
+            Part::ClassName(s) => result.push_classname(s),
         }
     }
 }

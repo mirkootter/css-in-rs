@@ -92,9 +92,9 @@ mod tests {
         let headers: Vec<&Header> = rules.iter().map(|r| &r.header).collect();
 
         assert_eq!(headers.len(), 3);
-        assert_eq!(header_to_str(headers[0]), "raw'div'classname'red_text'");
-        assert_eq!(header_to_str(headers[1]), "raw'div'classname'blue_text'");
-        assert_eq!(header_to_str(headers[2]), "classname'my_class'");
+        assert_eq!(header_to_str(headers[0]), "raw'div.'classname'red_text'");
+        assert_eq!(header_to_str(headers[1]), "raw'div.'classname'blue_text'");
+        assert_eq!(header_to_str(headers[2]), "raw'.'classname'my_class'");
 
         // Third rule
         {
