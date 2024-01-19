@@ -1,18 +1,11 @@
 #![allow(non_snake_case)]
 
-use css_in_rs::{make_styles, use_style_provider_root, Classes, EmptyTheme};
+use css_in_rs::{make_styles, use_style_provider_quickstart, Classes, EmptyTheme};
 use dioxus::prelude::*;
 
 fn main() {
     // launch the web app
     dioxus_web::launch(App);
-}
-
-fn use_main_element(cx: &ScopeState) -> &web_sys::Element {
-    cx.use_hook(|| {
-        let doc = web_sys::window().unwrap().document().unwrap();
-        doc.get_element_by_id("main").unwrap()
-    })
 }
 
 make_styles! {
@@ -64,8 +57,7 @@ fn BlueText(cx: Scope) -> Element {
 }
 
 fn App(cx: Scope) -> Element {
-    let root = use_main_element(cx);
-    use_style_provider_root(cx, root, || EmptyTheme);
+    use_style_provider_quickstart(cx, || EmptyTheme);
 
     cx.render(rsx! {
         RedText {}

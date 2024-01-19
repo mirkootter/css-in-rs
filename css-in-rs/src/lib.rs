@@ -21,7 +21,7 @@
 //! # #[cfg(feature = "dioxus")] {
 //! #![allow(non_snake_case)]
 //!
-//! use css_in_rs::{Classes, EmptyTheme, make_styles, use_style_provider_root};
+//! use css_in_rs::{Classes, EmptyTheme, make_styles, use_style_provider_quickstart};
 //! use dioxus::prelude::*;
 //!
 //! make_styles! {
@@ -60,10 +60,7 @@
 //! }
 //!
 //! fn App(cx: Scope) -> Element {
-//!     let document = web_sys::window().unwrap().document().unwrap();
-//!     let root = document.get_element_by_id("main").unwrap();
-//!     
-//!     use_style_provider_root(cx, &root, || EmptyTheme);
+//!     use_style_provider_quickstart(cx, || EmptyTheme);
 //!
 //!     cx.render(rsx! {
 //!         Demo {}
@@ -111,6 +108,17 @@ pub trait Classes: Sized + 'static {
         let provider = use_style_provider(cx);
         provider.use_styles(cx)
     }
+}
+
+/// Quickly sets up a StyleProvider in the global document. Styles will be attached
+/// to `window.document.head`
+#[doc_cfg(feature = "dioxus")]
+pub fn use_style_provider_quickstart<'a, T: Theme>(
+    cx: &'a ScopeState,
+    make_theme: impl FnOnce() -> T,
+) -> &'a StyleProvider<T> {
+    let provider = cx.use_hook(|| StyleProvider::quickstart_web(make_theme()));
+    use_context_provider(cx, || provider.clone())
 }
 
 #[doc_cfg(feature = "dioxus")]

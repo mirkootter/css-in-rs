@@ -52,6 +52,13 @@ impl<T: Theme> StyleProvider<T> {
         StyleProvider { inner }
     }
 
+    pub fn quickstart_web(theme: T) -> Self {
+        let inner = Inner::quickstart_web(theme);
+        let inner = Rc::new(RefCell::new(inner));
+
+        StyleProvider { inner }
+    }
+
     fn add_updater(&self, updater: fn(&T, &mut String, &mut u64)) -> u64 {
         self.inner.borrow_mut().add_updater(updater)
     }
@@ -103,9 +110,12 @@ struct Inner<T> {
 }
 
 impl<T: Theme> Inner<T> {
-    pub fn new_and_mount(some_elem: &web_sys::Element, theme: T) -> Self {
-        let root = some_elem.get_root_node();
+    pub fn quickstart_web(theme: T) -> Self {
+        let document = web_sys::window().unwrap().document().unwrap();
+        Self::new_and_mount_in_root(&document, theme)
+    }
 
+    pub fn new_and_mount_in_root(root: &web_sys::Node, theme: T) -> Self {
         let styles = if let Some(doc) = root.dyn_ref::<web_sys::Document>() {
             let head = doc.head().unwrap();
             let styles = doc.create_element("style").unwrap();
@@ -123,6 +133,11 @@ impl<T: Theme> Inner<T> {
             updater_to_idx: Default::default(),
             counter: 0,
         }
+    }
+
+    pub fn new_and_mount(some_elem: &web_sys::Element, theme: T) -> Self {
+        let root = some_elem.get_root_node();
+        Self::new_and_mount_in_root(&root, theme)
     }
 
     pub fn add_updater(&mut self, updater: UpdaterFn<T>) -> u64 {

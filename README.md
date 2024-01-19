@@ -21,7 +21,7 @@ and generates a helper class containing the real class names.
 ```rust
 #![allow(non_snake_case)]
 
-use css_in_rs::{Classes, EmptyTheme, make_styles, use_style_provider_root};
+use css_in_rs::{Classes, EmptyTheme, make_styles, use_style_provider_quickstart};
 use dioxus::prelude::*;
 
 make_styles! {
@@ -60,10 +60,7 @@ fn Demo(cx: Scope) -> Element {
 }
 
 fn App(cx: Scope) -> Element {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let root = document.get_element_by_id("main").unwrap();
-    
-    use_style_provider_root(cx, &root, || EmptyTheme);
+    use_style_provider_quickstart(cx, || EmptyTheme);
 
     cx.render(rsx! {
         Demo {}
