@@ -99,9 +99,13 @@ mod tests {
         // Third rule
         {
             let rule = rules[2];
-            assert_eq!(rule.entries.len(), 2);
+            let entries = match &rule.body {
+                crate::data::rules::RuleBody::Normal { entries } => entries,
+                _ => unreachable!(),
+            };
+            assert_eq!(entries.len(), 2);
 
-            let mut entries = rule.entries.iter();
+            let mut entries = entries.iter();
 
             let entry = entries.next().unwrap();
             assert_eq!(entry.property, "background-color");

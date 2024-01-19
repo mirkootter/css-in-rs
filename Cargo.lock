@@ -177,6 +177,7 @@ version = "0.1.2"
 dependencies = [
  "css-in-rs",
  "nom",
+ "prettyplease",
  "proc-macro2 1.0.76",
  "quote 1.0.35",
  "syn",

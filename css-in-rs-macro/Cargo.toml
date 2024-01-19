@@ -18,3 +18,4 @@ syn = "2.0.48"
 
 [dev-dependencies]
 css-in-rs = { path = "../css-in-rs", features = ["dioxus"] }
+prettyplease = "0.2.16"

@@ -83,11 +83,26 @@ mod tests {
                 "div.blue_color" {
                     color: "blue",
                 },
+                "@media (hover: none)" {
+                    "body *" {
+                        pointer_events: "none",
+                    }
+                }
             }
         };
 
         let style = syn::parse2::<Style>(input).unwrap();
         let result = result::Result::new(style);
+
+        // Uncomment to see nice version of the output
+        /*{
+            let ts = result.to_token_stream();
+            let file = syn::parse2::<syn::File>(ts).unwrap();
+            let nice = prettyplease::unparse(&file);
+            eprintln!("{nice}");
+            todo!();
+        }*/
+
         let result = result.to_token_stream().to_string();
 
         let expected = quote! {
@@ -104,13 +119,9 @@ mod tests {
                     let start = *counter;
                     let _ = write!(
                         css,
-                        "div.css-{} {{\n  {}: {};\n}}\ndiv.css-{} {{\n  {}: {};\n}}\n",
-                        start + 1u64,
-                        "color",
-                        "red",
-                        start + 0u64,
-                        "color",
-                        "blue"
+                        "div.css-{} {{\n  {}: {};\n}}\ndiv.css-{} {{\n  {}: {};\n}}\n@media (hover: none) {{\nbody * {{\n  {}: {};\n}}\n}}\n",
+                        start + 1u64, "color", "red", start + 0u64, "color", "blue",
+                        "pointer-events", "none"
                     );
                     *counter = start + 2u64;
                 }

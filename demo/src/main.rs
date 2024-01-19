@@ -13,6 +13,11 @@ make_styles! {
         left_margin {
             margin_left: "16px",
         },
+        "@media (hover:none)" {
+            "body" {
+                background_color: "#ababab",
+            },
+        },
     }
 }
 
