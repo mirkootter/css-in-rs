@@ -21,6 +21,7 @@ impl Part {
 pub struct Header {
     pub parts: Vec<Part>,
     pub span: Span,
+    pub at_rule: bool,
 }
 
 impl Header {
@@ -60,14 +61,16 @@ mod parse {
 
     pub fn parse(src: &str, span: Span) -> Option<Header> {
         let mut src = src.trim();
+        let at_rule = src.starts_with('@');
 
         let mut header = Header {
             parts: Default::default(),
             span,
+            at_rule,
         };
 
         loop {
-            let (remaining, part) = parse_part(src).ok()?;
+            let (remaining, part) = parse_part(src, !at_rule).ok()?;
             if part.is_class() {
                 header.push_char('.');
             }
@@ -98,14 +101,15 @@ mod parse {
         Ok((src, classname))
     }
 
-    fn parse_part(src: &str) -> ParseResult<Part> {
-        if src.starts_with('.') {
+    fn parse_part(src: &str, handle_dots: bool) -> ParseResult<Part> {
+        if handle_dots && src.starts_with('.') {
             let (src, classname) = parse_classname(src)?;
             let part = Part::ClassName(classname.to_string());
             return Ok((src, part));
         }
 
-        let (src, chunk) = nom::bytes::complete::take_while1(|ch: char| ch != '.')(src)?;
+        let (src, chunk) =
+            nom::bytes::complete::take_while1(|ch: char| !handle_dots || ch != '.')(src)?;
         let part = Part::Raw(chunk.to_string());
         Ok((src, part))
     }
@@ -119,7 +123,12 @@ impl Parse for Header {
                 Part::ClassName(ident.to_string()),
             ];
             let span = ident.span();
-            Header { parts, span }
+            let at_rule = false;
+            Header {
+                parts,
+                span,
+                at_rule,
+            }
         } else {
             let source = input.parse::<syn::LitStr>()?;
 
