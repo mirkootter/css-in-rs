@@ -86,8 +86,10 @@ mod tests {
                 "@media (hover: none)" {
                     "body *" {
                         pointer_events: "none",
-                    }
-                }
+                    },
+                    some_class {
+                    },
+                },
             }
         };
 
@@ -109,6 +111,7 @@ mod tests {
             struct MyClasses {
                 pub blue_color: String,
                 pub red_color: String,
+                pub some_class: String,
             }
 
             impl ::css_in_rs::Classes for MyClasses {
@@ -119,16 +122,17 @@ mod tests {
                     let start = *counter;
                     let _ = write!(
                         css,
-                        "div.css-{} {{\n  {}: {};\n}}\ndiv.css-{} {{\n  {}: {};\n}}\n@media (hover: none) {{\nbody * {{\n  {}: {};\n}}\n}}\n",
+                        "div.css-{} {{\n  {}: {};\n}}\ndiv.css-{} {{\n  {}: {};\n}}\n@media (hover: none) {{\nbody * {{\n  {}: {};\n}}\n.css-{} {{\n}}\n}}\n",
                         start + 1u64, "color", "red", start + 0u64, "color", "blue",
-                        "pointer-events", "none"
+                        "pointer-events", "none", start + 2u64
                     );
-                    *counter = start + 2u64;
+                    *counter = start + 3u64;
                 }
                 fn new(start: u64) -> Self {
                     Self {
                         blue_color: format!("css-{}", start + 0u64),
                         red_color: format!("css-{}", start + 1u64),
+                        some_class: format!("css-{}", start + 2u64),
                     }
                 }
             }

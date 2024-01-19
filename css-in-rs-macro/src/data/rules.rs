@@ -21,9 +21,29 @@ pub enum RuleBody {
     },
 }
 
+impl RuleBody {
+    fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
+        match self {
+            RuleBody::AtRule { children } => {
+                for child in children {
+                    child.collect_classnames(result);
+                }
+            }
+            RuleBody::Normal { .. } => {}
+        }
+    }
+}
+
 pub struct Rule {
     pub header: header::Header,
     pub body: RuleBody,
+}
+
+impl Rule {
+    fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
+        self.header.collect_classnames(result);
+        self.body.collect_classnames(result);
+    }
 }
 
 pub struct RuleList {
@@ -33,7 +53,7 @@ pub struct RuleList {
 impl RuleList {
     pub fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
         for rule in &self.rules {
-            rule.header.collect_classnames(result);
+            rule.collect_classnames(result);
         }
     }
 }
