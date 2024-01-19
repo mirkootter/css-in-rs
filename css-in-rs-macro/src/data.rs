@@ -1,37 +1,11 @@
-use std::collections::BTreeMap;
+use syn::parse::{Parse, ParseStream};
 
-use proc_macro2::Span;
-use syn::{
-    parse::{Parse, ParseStream},
-    punctuated::Punctuated,
-    Token,
-};
-
-use crate::output::{Output, ToOutput};
-
-pub mod entry;
-pub mod selector;
+pub mod rules;
 pub mod signature;
 
-pub struct Rule {
-    pub selector: selector::Selector,
-    pub entries: Punctuated<entry::Entry, syn::token::Comma>,
-}
-
-pub struct RuleList {
-    pub rules: Punctuated<Rule, syn::token::Comma>,
-}
-
-impl RuleList {
-    pub fn collect_classnames(&self, result: &mut BTreeMap<String, Span>) {
-        for rule in &self.rules {
-            rule.selector.collect_classnames(result);
-        }
-    }
-}
 pub struct Style {
     pub signature: signature::Signature,
-    pub rules: RuleList,
+    pub rules: rules::RuleList,
 }
 
 impl Style {
@@ -50,57 +24,16 @@ impl Style {
     }
 }
 
-impl Parse for Rule {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let selector = input.parse::<selector::Selector>()?;
-
-        let content;
-        syn::braced!(content in input);
-
-        let entries = content.parse_terminated(entry::Entry::parse, Token![,])?;
-
-        let rule = Rule { selector, entries };
-
-        Ok(rule)
-    }
-}
-
-impl Parse for RuleList {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let rules = input.parse_terminated(Rule::parse, Token![,])?;
-        Ok(RuleList { rules })
-    }
-}
-
 impl Parse for Style {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let signature = input.parse::<signature::Signature>()?;
 
         let content;
         syn::braced!(content in input);
-        let rules = content.parse::<RuleList>()?;
+        let rules = content.parse::<rules::RuleList>()?;
 
         let style = Style { signature, rules };
         Ok(style)
-    }
-}
-
-impl ToOutput for Rule {
-    fn append(&self, result: &mut Output) {
-        self.selector.append(result);
-        result.format_str.push_str(" {{\n");
-        for entry in &self.entries {
-            entry.append(result);
-        }
-        result.format_str.push_str("}}\n");
-    }
-}
-
-impl ToOutput for RuleList {
-    fn append(&self, result: &mut Output) {
-        for rule in &self.rules {
-            rule.append(result);
-        }
     }
 }
 
@@ -108,7 +41,7 @@ impl ToOutput for RuleList {
 mod tests {
     use quote::quote;
 
-    use crate::data::{
+    use crate::data::rules::{
         selector::{Part, Selector},
         Rule,
     };
