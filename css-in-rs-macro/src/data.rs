@@ -7,6 +7,8 @@ use syn::{
     Token,
 };
 
+use crate::output::{Output, ToOutput};
+
 pub mod entry;
 pub mod selector;
 pub mod signature;
@@ -80,6 +82,25 @@ impl Parse for Style {
 
         let style = Style { signature, rules };
         Ok(style)
+    }
+}
+
+impl ToOutput for Rule {
+    fn append(&self, result: &mut Output) {
+        self.selector.append(result);
+        result.format_str.push_str(" {{\n");
+        for entry in &self.entries {
+            entry.append(result);
+        }
+        result.format_str.push_str("}}\n");
+    }
+}
+
+impl ToOutput for RuleList {
+    fn append(&self, result: &mut Output) {
+        for rule in &self.rules {
+            rule.append(result);
+        }
     }
 }
 

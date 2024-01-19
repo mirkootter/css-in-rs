@@ -3,6 +3,8 @@ use std::collections::{btree_map::Entry, BTreeMap};
 use proc_macro2::Span;
 use syn::parse::{Parse, ParseStream};
 
+use crate::output::{Output, ToOutput};
+
 #[derive(Debug)]
 pub enum Part {
     Raw(String),
@@ -111,5 +113,25 @@ impl Parse for Selector {
         };
 
         Ok(selector)
+    }
+}
+
+impl ToOutput for Part {
+    fn append(&self, result: &mut Output) {
+        match self {
+            Part::Raw(s) => result.push_str(s),
+            Part::ClassName(s) => {
+                result.push_str(".");
+                result.push_classname(s);
+            }
+        }
+    }
+}
+
+impl ToOutput for Selector {
+    fn append(&self, result: &mut Output) {
+        for part in &self.parts {
+            part.append(result);
+        }
     }
 }

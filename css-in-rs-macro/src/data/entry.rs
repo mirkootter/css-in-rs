@@ -1,8 +1,7 @@
-use quote::{quote_spanned, ToTokens};
-use syn::{
-    parse::{Parse, ParseStream},
-    spanned::Spanned,
-};
+use quote::{quote, ToTokens};
+use syn::parse::{Parse, ParseStream};
+
+use crate::output::{Output, ToOutput};
 
 pub struct Entry {
     pub property: String,
@@ -29,14 +28,12 @@ impl Parse for Entry {
     }
 }
 
-impl ToTokens for Entry {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+impl ToOutput for Entry {
+    fn append(&self, result: &mut Output) {
         let property = &self.property;
         let value = &self.value;
 
-        let write = quote_spanned! { value.span() =>
-            ::core::writeln!(css, "  {}: {};", #property, #value).unwrap();
-        };
-        write.to_tokens(tokens);
+        result.format_str.push_str("  {}: {};\n");
+        quote!(, #property, #value).to_tokens(&mut result.params);
     }
 }
