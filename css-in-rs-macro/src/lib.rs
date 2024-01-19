@@ -54,7 +54,7 @@ mod result;
 /// }
 /// ```
 /// You can inject this style into the DOM using a `StyleProvider` (see
-/// css-in-js crate). It will hand you a `MyClasses` instance with uniquely
+/// css-in-rs crate). It will hand you a `MyClasses` instance with uniquely
 /// generated classnames (usually something like `css-17`).
 #[proc_macro]
 pub fn make_styles(input: TokenStream) -> TokenStream {

@@ -77,12 +77,15 @@
 //! # }
 //! ```
 
-#[cfg(feature = "dioxus")]
+#![cfg_attr(feature = "unstable-doc-cfg", feature(doc_cfg))]
+
+#[doc_cfg(feature = "dioxus")]
 use dioxus::prelude::*;
 
 mod style_provider;
 
 pub use css_in_rs_macro::make_styles;
+use doc_cfg::doc_cfg;
 pub use style_provider::StyleProvider;
 
 pub trait Theme: Clone + 'static {
@@ -103,14 +106,14 @@ pub trait Classes: Sized + 'static {
     fn generate(theme: &Self::Theme, css: &mut String, counter: &mut u64);
     fn new(start: u64) -> Self;
 
-    #[cfg(feature = "dioxus")]
+    #[doc_cfg(feature = "dioxus")]
     fn use_style(cx: &ScopeState) -> &Self {
         let provider = use_style_provider(cx);
         provider.use_styles(cx)
     }
 }
 
-#[cfg(feature = "dioxus")]
+#[doc_cfg(feature = "dioxus")]
 pub fn use_style_provider_root<'a, T: Theme>(
     cx: &'a ScopeState,
     some_elem: &web_sys::Element,
@@ -120,7 +123,7 @@ pub fn use_style_provider_root<'a, T: Theme>(
     use_context_provider(cx, || provider.clone())
 }
 
-#[cfg(feature = "dioxus")]
+#[doc_cfg(feature = "dioxus")]
 pub fn use_style_provider<T: Theme>(cx: &ScopeState) -> &StyleProvider<T> {
     use_context(cx).unwrap()
 }
