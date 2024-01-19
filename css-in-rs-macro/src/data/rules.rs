@@ -10,6 +10,7 @@ use syn::{
 use crate::output::{Output, ToOutput};
 
 pub mod entry;
+pub mod header;
 pub mod selector;
 
 pub struct Rule {

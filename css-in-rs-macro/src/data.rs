@@ -41,10 +41,7 @@ impl Parse for Style {
 mod tests {
     use quote::quote;
 
-    use crate::data::rules::{
-        selector::{Part, Selector},
-        Rule,
-    };
+    use crate::data::rules::{header::Part, selector::Selector, Rule};
 
     use super::Style;
 
@@ -69,7 +66,7 @@ mod tests {
             use core::fmt::Write;
             let mut result = String::new();
 
-            let parts = &sel.parts;
+            let parts = &sel.header.parts;
 
             for part in parts {
                 match part {
