@@ -153,7 +153,6 @@ dependencies = [
  "dioxus",
  "dioxus-web",
  "doc-cfg",
- "gloo-console",
  "js-sys",
  "wasm-bindgen",
  "web-sys",
@@ -166,7 +165,6 @@ dependencies = [
  "css-in-rs",
  "dioxus",
  "dioxus-web",
- "gloo-console",
  "js-sys",
  "web-sys",
 ]
@@ -518,32 +516,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "wasi",
-]
-
-[[package]]
-name = "gloo-console"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a17868f56b4a24f677b17c8cb69958385102fa879418052d60b50bc1727e261"
-dependencies = [
- "gloo-utils",
- "js-sys",
- "serde",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "gloo-utils"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b5555354113b18c547c1d3a98fbf7fb32a9ff4f6fa112ce823a21641a0ba3aa"
-dependencies = [
- "js-sys",
- "serde",
- "serde_json",
- "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
