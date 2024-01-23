@@ -81,6 +81,8 @@ use dioxus::prelude::*;
 
 mod style_provider;
 
+pub mod backend;
+
 pub use css_in_rs_macro::make_styles;
 use doc_cfg::doc_cfg;
 pub use style_provider::StyleProvider;
@@ -118,16 +120,6 @@ pub fn use_style_provider_quickstart<'a, T: Theme>(
     make_theme: impl FnOnce() -> T,
 ) -> &'a StyleProvider<T> {
     let provider = cx.use_hook(|| StyleProvider::quickstart_web(make_theme()));
-    use_context_provider(cx, || provider.clone())
-}
-
-#[doc_cfg(feature = "dioxus")]
-pub fn use_style_provider_root<'a, T: Theme>(
-    cx: &'a ScopeState,
-    some_elem: &web_sys::Element,
-    make_theme: impl FnOnce() -> T,
-) -> &'a StyleProvider<T> {
-    let provider = cx.use_hook(|| StyleProvider::new_and_mount(some_elem, make_theme()));
     use_context_provider(cx, || provider.clone())
 }
 

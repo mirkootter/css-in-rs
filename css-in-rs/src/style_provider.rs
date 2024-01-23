@@ -5,9 +5,11 @@ use std::{collections::btree_map::Entry, rc::Rc};
 use dioxus::core::ScopeState;
 
 use doc_cfg::doc_cfg;
-use wasm_bindgen::JsCast;
 
-use crate::{Classes, Theme};
+use crate::{
+    backend::{self, Backend, UpdaterFn},
+    Classes, Theme,
+};
 
 /// Manages dynamically inserted styles. You should usually have exactly one.
 /// Generated classnames are only unique for a fixed [StyleProvider].
@@ -27,11 +29,11 @@ use crate::{Classes, Theme};
 /// }
 ///
 /// fn main() {
-///     let elem: &web_sys::Element = todo!(); // Some element
-///     let style_provider = StyleProvider::new_and_mount(elem, EmptyTheme);
+///     let style_provider = StyleProvider::quickstart_web(EmptyTheme);
 ///     
 ///     // inject the css styles
 ///     let cls = style_provider.add_classes::<MyClasses>();
+///     let elem: &web_sys::Element = todo!(); // Some element
 ///     elem.set_class_name(&cls.my_class);
 ///     
 ///     // inject it again; no change; will return the same classes
@@ -45,13 +47,6 @@ pub struct StyleProvider<T> {
 }
 
 impl<T: Theme> StyleProvider<T> {
-    pub fn new_and_mount(some_elem: &web_sys::Element, theme: T) -> Self {
-        let inner = Inner::new_and_mount(some_elem, theme);
-        let inner = Rc::new(RefCell::new(inner));
-
-        StyleProvider { inner }
-    }
-
     pub fn quickstart_web(theme: T) -> Self {
         let inner = Inner::quickstart_web(theme);
         let inner = Rc::new(RefCell::new(inner));
@@ -84,8 +79,6 @@ impl<T: Theme> StyleProvider<T> {
     }
 }
 
-type UpdaterFn<T> = fn(&T, &mut String, &mut u64) -> ();
-
 struct Updater<T> {
     updater: UpdaterFn<T>,
     start: u64,
@@ -101,9 +94,8 @@ impl<T: Theme> Updater<T> {
 }
 
 struct Inner<T> {
-    styles: web_sys::Element,
+    backend: Box<dyn Backend<T>>,
     current_theme: T,
-    current_style: String,
     updaters: Vec<Updater<T>>,
     updater_to_idx: std::collections::BTreeMap<UpdaterFn<T>, usize>,
     counter: u64,
@@ -111,33 +103,19 @@ struct Inner<T> {
 
 impl<T: Theme> Inner<T> {
     pub fn quickstart_web(theme: T) -> Self {
-        let document = web_sys::window().unwrap().document().unwrap();
-        Self::new_and_mount_in_root(&document, theme)
+        let backend = backend::web::WebSysBackend::quickstart();
+        Self::new_with_backend(backend, theme)
     }
 
-    pub fn new_and_mount_in_root(root: &web_sys::Node, theme: T) -> Self {
-        let styles = if let Some(doc) = root.dyn_ref::<web_sys::Document>() {
-            let head = doc.head().unwrap();
-            let styles = doc.create_element("style").unwrap();
-            head.append_child(&styles).unwrap();
-            styles
-        } else {
-            panic!("This is most likely a shadow root. Not supported yet");
-        };
-
+    pub fn new_with_backend<B: Backend<T>>(backend: B, theme: T) -> Self {
+        let backend = Box::new(backend);
         Self {
-            styles,
+            backend,
             current_theme: theme,
-            current_style: Default::default(),
             updaters: Default::default(),
             updater_to_idx: Default::default(),
             counter: 0,
         }
-    }
-
-    pub fn new_and_mount(some_elem: &web_sys::Element, theme: T) -> Self {
-        let root = some_elem.get_root_node();
-        Self::new_and_mount_in_root(&root, theme)
     }
 
     pub fn add_updater(&mut self, updater: UpdaterFn<T>) -> u64 {
@@ -154,11 +132,8 @@ impl<T: Theme> Inner<T> {
         }
 
         let start = self.counter;
-        updater(
-            &self.current_theme,
-            &mut self.current_style,
-            &mut self.counter,
-        );
+        self.backend
+            .run_updater(updater, &self.current_theme, &mut self.counter);
         let stop = self.counter;
         let updater = Updater {
             updater,
@@ -167,20 +142,16 @@ impl<T: Theme> Inner<T> {
         };
 
         self.updaters.push(updater);
-
-        // TODO: Probably much faster just to add a single CSS Rule
-        self.styles.set_text_content(Some(&self.current_style));
-
         start
     }
 
     fn update(&mut self) {
-        self.current_style.clear();
+        let mut css = String::default();
         for updater in &self.updaters {
-            updater.update(&self.current_theme, &mut self.current_style);
+            updater.update(&self.current_theme, &mut css);
         }
 
-        self.styles.set_text_content(Some(&self.current_style));
+        self.backend.replace_all(css);
     }
 
     pub fn update_theme(&mut self, theme: T) {
