@@ -1,7 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "example",
     "css-in-rs",
     "css-in-rs-macro",
+    "demo",
+    "example",
 ]
+
+[patch.crates-io]
+css-in-rs = { path = "css-in-rs" }

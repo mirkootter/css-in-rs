@@ -159,6 +159,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "css-in-rs-demo"
+version = "0.2.0"
+dependencies = [
+ "css-in-rs",
+ "dioxus",
+ "dioxus-web",
+ "js-sys",
+ "mui-dioxus",
+ "mui-dioxus-demopanel",
+ "web-sys",
+]
+
+[[package]]
 name = "css-in-rs-example"
 version = "0.2.0"
 dependencies = [
@@ -633,6 +646,29 @@ name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
+name = "mui-dioxus"
+version = "0.0.1"
+source = "git+ssh://git@github.com/mirkootter/mui-dioxus.git#b7b040e8a18b9547388ff739ddbb8dc79d14fb98"
+dependencies = [
+ "css-in-rs",
+ "dioxus",
+ "js-sys",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "mui-dioxus-demopanel"
+version = "0.0.1"
+source = "git+ssh://git@github.com/mirkootter/mui-dioxus.git#b7b040e8a18b9547388ff739ddbb8dc79d14fb98"
+dependencies = [
+ "css-in-rs",
+ "dioxus",
+ "mui-dioxus",
+ "nom",
+]
 
 [[package]]
 name = "nom"
