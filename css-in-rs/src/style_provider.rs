@@ -7,7 +7,7 @@ use dioxus::core::ScopeState;
 use doc_cfg::doc_cfg;
 
 use crate::{
-    backend::{Backend, UpdaterFn},
+    backend::{Backend, CssGeneratorFn},
     Classes, Theme,
 };
 
@@ -55,15 +55,15 @@ impl<T: Theme> StyleProvider<T> {
         StyleProvider { inner }
     }
 
-    fn add_updater(&self, updater: fn(&T, &mut String, &mut u64)) -> u64 {
-        self.inner.borrow_mut().add_updater(updater)
+    fn add_css_generator(&self, generator: CssGeneratorFn<T>) -> u64 {
+        self.inner.borrow_mut().add_css_generator(generator)
     }
 
     pub fn add_classes<C>(&self) -> C
     where
         C: Classes<Theme = T>,
     {
-        let start = self.add_updater(C::generate);
+        let start = self.add_css_generator(C::generate);
         C::new(start)
     }
 
@@ -80,16 +80,16 @@ impl<T: Theme> StyleProvider<T> {
     }
 }
 
-struct Updater<T> {
-    updater: UpdaterFn<T>,
+struct CssGenerator<T> {
+    generator: CssGeneratorFn<T>,
     start: u64,
     stop: u64,
 }
 
-impl<T: Theme> Updater<T> {
-    fn update(&self, theme: &T, css: &mut String) {
+impl<T: Theme> CssGenerator<T> {
+    fn generate(&self, theme: &T, css: &mut String) {
         let mut counter = self.start;
-        (self.updater)(theme, css, &mut counter);
+        (self.generator)(theme, css, &mut counter);
         assert_eq!(counter, self.stop);
     }
 }
@@ -97,8 +97,8 @@ impl<T: Theme> Updater<T> {
 struct Inner<T> {
     backend: Box<dyn Backend<T>>,
     current_theme: T,
-    updaters: Vec<Updater<T>>,
-    updater_to_idx: std::collections::BTreeMap<UpdaterFn<T>, usize>,
+    generators: Vec<CssGenerator<T>>,
+    generator_to_idx: std::collections::BTreeMap<CssGeneratorFn<T>, usize>,
     counter: u64,
 }
 
@@ -114,43 +114,43 @@ impl<T: Theme> Inner<T> {
         Self {
             backend,
             current_theme: theme,
-            updaters: Default::default(),
-            updater_to_idx: Default::default(),
+            generators: Default::default(),
+            generator_to_idx: Default::default(),
             counter: 0,
         }
     }
 
-    pub fn add_updater(&mut self, updater: UpdaterFn<T>) -> u64 {
-        debug_assert_eq!(self.updater_to_idx.len(), self.updaters.len());
+    pub fn add_css_generator(&mut self, generator: CssGeneratorFn<T>) -> u64 {
+        debug_assert_eq!(self.generator_to_idx.len(), self.generators.len());
 
-        match self.updater_to_idx.entry(updater) {
+        match self.generator_to_idx.entry(generator) {
             Entry::Vacant(vac) => {
-                vac.insert(self.updaters.len());
+                vac.insert(self.generators.len());
             }
             Entry::Occupied(occ) => {
                 let idx = *occ.get();
-                return self.updaters[idx].start;
+                return self.generators[idx].start;
             }
         }
 
         let start = self.counter;
         self.backend
-            .run_updater(updater, &self.current_theme, &mut self.counter);
+            .run_css_generator(generator, &self.current_theme, &mut self.counter);
         let stop = self.counter;
-        let updater = Updater {
-            updater,
+        let generator = CssGenerator {
+            generator,
             start,
             stop,
         };
 
-        self.updaters.push(updater);
+        self.generators.push(generator);
         start
     }
 
     fn update(&mut self) {
         let mut css = String::default();
-        for updater in &self.updaters {
-            updater.update(&self.current_theme, &mut css);
+        for generator in &self.generators {
+            generator.generate(&self.current_theme, &mut css);
         }
 
         self.backend.replace_all(css);

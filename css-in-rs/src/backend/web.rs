@@ -2,7 +2,7 @@ use wasm_bindgen::JsCast;
 
 use crate::Theme;
 
-use super::Backend;
+use super::{Backend, CssGeneratorFn};
 
 pub struct WebSysBackend {
     current_style: String,
@@ -38,9 +38,9 @@ impl<T: Theme> Backend<T> for WebSysBackend {
         self.styles.set_text_content(Some(&self.current_style));
     }
 
-    fn run_updater(&mut self, updater: super::UpdaterFn<T>, theme: &T, counter: &mut u64) {
+    fn run_css_generator(&mut self, generator: CssGeneratorFn<T>, theme: &T, counter: &mut u64) {
         // TODO: There is probably a much faster way than to append this style this way
-        (updater)(theme, &mut self.current_style, counter);
+        (generator)(theme, &mut self.current_style, counter);
         self.styles.set_text_content(Some(&self.current_style));
     }
 }
