@@ -1,6 +1,6 @@
 [package]
 name = "css-in-rs"
-version = "0.1.4"
+version = "0.2.0"
 authors = ["Jan-Mirko Otter"]
 edition = "2021"
 license = "MIT"
@@ -16,7 +16,7 @@ unstable-doc-cfg = []
 web-sys = ["dep:web-sys", "dep:wasm-bindgen"]
 
 [dependencies]
-css-in-rs-macro = { version = "0.1.4", path = "../css-in-rs-macro" }
+css-in-rs-macro = { version = "0.2.0", path = "../css-in-rs-macro" }
 dioxus = { version = "0.4.3", optional = true }
 doc-cfg = "0.1.0"
 gloo-console = "0.3.0"
