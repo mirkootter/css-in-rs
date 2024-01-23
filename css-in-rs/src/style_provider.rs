@@ -7,7 +7,7 @@ use dioxus::core::ScopeState;
 use doc_cfg::doc_cfg;
 
 use crate::{
-    backend::{self, Backend, UpdaterFn},
+    backend::{Backend, UpdaterFn},
     Classes, Theme,
 };
 
@@ -47,6 +47,7 @@ pub struct StyleProvider<T> {
 }
 
 impl<T: Theme> StyleProvider<T> {
+    #[cfg(feature = "web-sys")]
     pub fn quickstart_web(theme: T) -> Self {
         let inner = Inner::quickstart_web(theme);
         let inner = Rc::new(RefCell::new(inner));
@@ -102,8 +103,9 @@ struct Inner<T> {
 }
 
 impl<T: Theme> Inner<T> {
+    #[cfg(feature = "web-sys")]
     pub fn quickstart_web(theme: T) -> Self {
-        let backend = backend::web::WebSysBackend::quickstart();
+        let backend = crate::backend::web::WebSysBackend::quickstart();
         Self::new_with_backend(backend, theme)
     }
 

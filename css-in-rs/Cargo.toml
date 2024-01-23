@@ -11,7 +11,9 @@ readme = "../README.md"
 
 [features]
 default = []
+dioxus = ["dep:dioxus", "web-sys"]
 unstable-doc-cfg = []
+web-sys = ["dep:web-sys", "dep:wasm-bindgen"]
 
 [dependencies]
 css-in-rs-macro = { version = "0.1.4", path = "../css-in-rs-macro" }
@@ -19,8 +21,8 @@ dioxus = { version = "0.4.3", optional = true }
 doc-cfg = "0.1.0"
 gloo-console = "0.3.0"
 js-sys = "0.3.67"
-wasm-bindgen = "0.2.90"
-web-sys = { version = "0.3.67", features = ["Document"] }
+wasm-bindgen = { version = "0.2.90", optional = true }
+web-sys = { version = "0.3.67", features = ["Document"], optional = true }
 
 [dev-dependencies]
 dioxus-web = "0.4.3"

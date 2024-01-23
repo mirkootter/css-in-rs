@@ -1,3 +1,4 @@
+#[cfg(feature = "web-sys")]
 pub mod web;
 
 use crate::Theme;
