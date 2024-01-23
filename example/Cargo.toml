@@ -1,5 +1,5 @@
 [package]
-name = "css-in-rs-demo"
+name = "css-in-rs-example"
 version = "0.2.0"
 edition = "2021"
 publish = false

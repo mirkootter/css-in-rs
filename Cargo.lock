@@ -159,7 +159,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "css-in-rs-demo"
+name = "css-in-rs-example"
 version = "0.2.0"
 dependencies = [
  "css-in-rs",

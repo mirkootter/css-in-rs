@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "demo",
+    "example",
     "css-in-rs",
     "css-in-rs-macro",
 ]
