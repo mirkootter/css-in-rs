@@ -47,6 +47,8 @@ pub struct StyleProvider<T> {
 }
 
 impl<T: Theme> StyleProvider<T> {
+    /// Quickly sets up a [StyleProvider] for the given theme at the active document.
+    /// It will create a new `style` tag to the head and use it to mount new styles.
     #[cfg(feature = "web-sys")]
     pub fn quickstart_web(theme: T) -> Self {
         let inner = Inner::quickstart_web(theme);
@@ -59,6 +61,9 @@ impl<T: Theme> StyleProvider<T> {
         self.inner.borrow_mut().add_css_generator(generator)
     }
 
+    /// Mount new styles and returns the dynamically generated classnames.
+    /// If this style is already mounted, it won't be mounted again. The classnames
+    /// will be the same as last time.
     pub fn add_classes<C>(&self) -> C
     where
         C: Classes<Theme = T>,
@@ -67,10 +72,17 @@ impl<T: Theme> StyleProvider<T> {
         C::new(start)
     }
 
+    /// Change the theme. All styles will be recomputed, but the classnames will
+    /// not change.
     pub fn update_theme(&self, theme: T) {
         self.inner.borrow_mut().update_theme(theme);
     }
 
+    /// A convenience hook to mount styles and cache the classnames.
+    /// Note that the style will only be mounted once, even if you use this
+    /// hook from multiple components or your components will be used multiple
+    /// times. The classnames will be the same every time, as long as the
+    /// same [StyleProvider] is used.
     #[doc_cfg(feature = "dioxus")]
     pub fn use_styles<'a, C>(&self, cx: &'a ScopeState) -> &'a C
     where
